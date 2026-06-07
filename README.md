@@ -12,20 +12,24 @@ Built for HackBaroda 2026.
 
 ## Visual Preview
 
-![CiteMind dashboard overview](media/screenshots/dashboard-overview.png)
+![CiteMind dashboard overview](media/dashboard-overview.png)
 
 The dashboard gives teams a fast read on citation health, share-of-model, live
 checks, and memory observations for each tracked site.
 
-![CiteMind demo before and after memory](media/screenshots/demo-before-after.png)
+![CiteMind demo before and after memory](media/demo-before-after.png)
 
 The demo shows the core story: the same question gets a generic answer before
 memory and a proof-backed answer after historical citation outcomes are seeded.
 
-![CiteMind agent memory view](media/screenshots/agent-memory.png)
+![CiteMind agent memory view](media/agent-memory.png)
 
 The agent view connects recommendations to retained memories and consolidated
 observations, making the learning loop visible to judges and users.
+
+![CiteMind User Help FAQ'S view](media/FAQ_HELP.png)
+
+The User can get help from FAQ'S and they can use our web-app easily.
 
 ## Documentation
 
