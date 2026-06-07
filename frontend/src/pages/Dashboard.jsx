@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { getSites, createSite, addQueries, getHealth } from '../services/api.js';
 import ShareOfModelGauge from '../components/ShareOfModelGauge.jsx';
 import { useStaggerReveal, useReveal } from '../hooks/useGSAP.js';
+import { getSitesLoadErrorMessage, normalizeSitesResponse } from './dashboardState.js';
 
 const DEFAULT_QUERIES = [
   { text: 'web developer ahmedabad', intent: 'local' },
@@ -19,14 +20,24 @@ export default function Dashboard() {
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: '', domain: '' });
   const [health, setHealth] = useState(null);
+  const [loadError, setLoadError] = useState('');
 
   const headingRef = useReveal({ from: 'bottom' });
   const gridRef    = useStaggerReveal(0.1);
 
   const load = async () => {
-    const { data } = await getSites();
-    setSites(data);
-    setLoading(false);
+    setLoading(true);
+    setLoadError('');
+
+    try {
+      const { data } = await getSites();
+      setSites(normalizeSitesResponse(data));
+    } catch (err) {
+      setSites([]);
+      setLoadError(getSitesLoadErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -134,6 +145,21 @@ export default function Dashboard() {
         <div className="text-slate-500 text-center py-16">
           <div className="text-3xl mb-3 pulse-glow">⬡</div>
           Loading your sites…
+        </div>
+      ) : loadError ? (
+        <div
+          className="glass rounded-2xl p-10 text-center max-w-2xl mx-auto"
+          style={{ boxShadow: 'var(--glow-rose)' }}
+          role="alert"
+        >
+          <div className="text-4xl mb-4">!</div>
+          <h3 className="text-lg font-bold mb-2">Sites could not load</h3>
+          <p className="text-slate-400 mb-6 text-sm max-w-md mx-auto">
+            {loadError}
+          </p>
+          <button className="btn-primary" onClick={load}>
+            Reload sites
+          </button>
         </div>
       ) : sites.length === 0 ? (
         <div
