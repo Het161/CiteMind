@@ -14,6 +14,7 @@ import { useSocket } from '../hooks/useSocket.js';
 import MemoryFeed from '../components/MemoryFeed.jsx';
 import ObservationCard from '../components/ObservationCard.jsx';
 import BeforeAfterPanel from '../components/BeforeAfterPanel.jsx';
+import { useReveal } from '../hooks/useGSAP.js';
 
 const DEMO_NAME = 'CiteMind Demo — OM Marketing Solutions';
 const DEMO_DOMAIN = 'ommarketing.in';
@@ -28,6 +29,8 @@ export default function Demo() {
   const [afterProof, setAfterProof] = useState(0);
   const [busy, setBusy] = useState('');
   const bootstrapped = useRef(false);
+
+  const titleRevealRef = useReveal({ from: 'bottom' });
 
   // Ensure a dedicated demo site exists, then reset its memory for a clean run.
   useEffect(() => {
@@ -122,10 +125,11 @@ export default function Demo() {
   return (
     <main className="max-w-6xl mx-auto px-6 py-8">
       {/* Title */}
-      <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
+      <div ref={titleRevealRef} className="flex items-end justify-between flex-wrap gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold">
-            CiteMind — <span className="text-teal">memory in action</span>
+          <div className="badge-teal mb-3"><span>▶</span> Interactive Demo</div>
+          <h1 className="font-display text-3xl font-extrabold">
+            CiteMind — <span className="gradient-text">memory in action</span>
           </h1>
           <p className="text-slate-400 mt-1">
             The same question, asked twice — watch memory turn a generic answer into a proven playbook.
@@ -169,12 +173,12 @@ export default function Demo() {
               <MemoryFeed memories={memories} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-100 mb-3">
-                Consolidated Beliefs
-                <span className="ml-2 text-xs text-slate-500 font-normal">
-                  auto-merged by Hindsight
-                </span>
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="font-bold text-slate-100">
+                  Consolidated Beliefs
+                </h3>
+                <span className="badge-grape" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>Hindsight Engine</span>
+              </div>
               <div className="space-y-3">
                 {observations.length === 0 && (
                   <div className="card p-6 text-center text-slate-500 text-sm">
@@ -209,7 +213,7 @@ export default function Demo() {
 
       {/* Persistent before/after at the bottom */}
       <div className="mt-8">
-        <h2 className="font-bold text-slate-100 mb-3">Same question, two brains</h2>
+        <h2 className="font-bold text-slate-100 mb-3"><span className="gradient-text">Same question, two brains</span></h2>
         <BeforeAfterPanel before={before} after={after} afterProofCount={afterProof} />
       </div>
     </main>
@@ -217,14 +221,28 @@ export default function Demo() {
 }
 
 function StepCard({ n, title, accent, note, cta, onClick, loading, disabled, done }) {
+  const [hovered, setHovered] = useState(false);
+
   const ring = { rose: 'border-l-rose-500', grape: 'border-l-grape', teal: 'border-l-teal' }[accent];
   const btn = { rose: 'btn-ghost', grape: 'btn-grape', teal: 'btn-primary' }[accent];
+  const glowShadow = {
+    rose: 'var(--glow-rose)',
+    grape: 'var(--glow-grape)',
+    teal: 'var(--glow-teal)',
+  }[accent];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`card p-5 border-l-4 ${ring} flex flex-col sm:flex-row sm:items-center gap-4`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className={`card glass p-5 border-l-4 ${ring} flex flex-col sm:flex-row sm:items-center gap-4`}
+      style={{
+        boxShadow: hovered ? glowShadow : undefined,
+        transform: hovered ? 'translateY(-1px)' : undefined,
+        transition: 'box-shadow 0.25s ease, transform 0.25s ease',
+      }}
     >
       <div className="flex items-start gap-3 flex-1">
         <span

@@ -25,45 +25,53 @@ export default function Register() {
   };
 
   return (
-    <AuthShell title="Create account" subtitle="Start tracking your AI citations with memory.">
+    <AuthShell title="Create your account" subtitle="Start tracking AI citations in minutes.">
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="label">Name</label>
+          <label className="label" htmlFor="reg-name">Name</label>
           <input
+            id="reg-name"
             className="input"
+            type="text"
+            autoComplete="name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
           />
         </div>
         <div>
-          <label className="label">Email</label>
+          <label className="label" htmlFor="reg-email">Email</label>
           <input
+            id="reg-email"
             className="input"
             type="email"
+            autoComplete="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             required
           />
         </div>
         <div>
-          <label className="label">Password</label>
+          <label className="label" htmlFor="reg-password">Password</label>
           <input
+            id="reg-password"
             className="input"
             type="password"
+            autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
+            minLength={8}
           />
         </div>
-        {error && <p className="text-sm text-rose-400">{error}</p>}
-        <button className="btn-primary w-full" disabled={loading}>
-          {loading ? 'Creating…' : 'Create account'}
+        {error && <p className="text-sm text-rose-400" role="alert">{error}</p>}
+        <button id="reg-submit" className="btn-primary w-full" disabled={loading}>
+          {loading ? 'Creating account…' : 'Create account'}
         </button>
       </form>
       <p className="text-sm text-slate-400 mt-5 text-center">
         Already have an account?{' '}
-        <Link to="/login" className="text-teal font-medium">
+        <Link to="/login" className="text-teal font-medium hover:text-teal/80 transition-colors">
           Sign in
         </Link>
       </p>

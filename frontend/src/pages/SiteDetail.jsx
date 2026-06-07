@@ -5,6 +5,7 @@ import { useSocket } from '../hooks/useSocket.js';
 import ShareOfModelGauge from '../components/ShareOfModelGauge.jsx';
 import CitationCard from '../components/CitationCard.jsx';
 import MemoryFeed from '../components/MemoryFeed.jsx';
+import { useReveal, useStaggerReveal } from '../hooks/useGSAP.js';
 
 export default function SiteDetail() {
   const { id } = useParams();
@@ -13,6 +14,9 @@ export default function SiteDetail() {
   const [cards, setCards] = useState([]); // latest result per query text
   const [memories, setMemories] = useState([]);
   const [running, setRunning] = useState(false);
+
+  const headerRef = useReveal({ from: 'bottom' });
+  const citationsRef = useStaggerReveal(0.08);
 
   const load = async () => {
     const { data } = await getSite(id);
@@ -54,16 +58,24 @@ export default function SiteDetail() {
     }
   };
 
-  if (!site) return <div className="max-w-7xl mx-auto px-6 py-8 text-slate-500">Loading…</div>;
+  if (!site) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-slate-500">
+      <div className="w-10 h-10 rounded-full bg-teal/20 border border-teal/40 flex items-center justify-center pulse-glow">
+        <span className="text-teal font-bold text-lg">⬡</span>
+      </div>
+      <p className="font-semibold text-sm">Loading site details...</p>
+    </div>
+  );
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
       {/* Header */}
-      <div className="card p-6 mb-6 flex flex-wrap items-center justify-between gap-6">
+      <div ref={headerRef} className="card glass p-6 mb-6 flex flex-wrap items-center justify-between gap-6" style={{ boxShadow: 'var(--glow-teal)' }}>
         <div className="flex items-center gap-5">
           <ShareOfModelGauge value={site.shareOfModel} size={120} />
           <div>
-            <h1 className="text-2xl font-extrabold">{site.name}</h1>
+            <div className="badge-teal mb-2"><span>⬡</span> Tracked Domain</div>
+            <h1 className="font-display text-2xl font-extrabold">{site.name}</h1>
             <p className="text-slate-400">{site.domain}</p>
             <p className="text-xs text-slate-500 mt-1">
               {queries.length} target queries · memory bank{' '}
@@ -82,8 +94,8 @@ export default function SiteDetail() {
       <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6">
         {/* Citation results */}
         <div>
-          <h2 className="font-bold text-slate-100 mb-3">Citations</h2>
-          <div className="space-y-3">
+          <h2 className="font-bold text-slate-100 mb-3"><span className="gradient-text">Citations</span></h2>
+          <div ref={citationsRef} className="space-y-3">
             {cards.length === 0 && (
               <div className="card p-8 text-center text-slate-500">
                 {running ? 'Running checks…' : 'Run a citation check to see results.'}

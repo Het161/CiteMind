@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getSites, createSite, addQueries, getHealth } from '../services/api.js';
 import ShareOfModelGauge from '../components/ShareOfModelGauge.jsx';
+import { useStaggerReveal, useReveal } from '../hooks/useGSAP.js';
 
 const DEFAULT_QUERIES = [
   { text: 'web developer ahmedabad', intent: 'local' },
@@ -18,6 +19,9 @@ export default function Dashboard() {
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: '', domain: '' });
   const [health, setHealth] = useState(null);
+
+  const headingRef = useReveal({ from: 'bottom' });
+  const gridRef    = useStaggerReveal(0.1);
 
   const load = async () => {
     const { data } = await getSites();
@@ -41,85 +45,155 @@ export default function Dashboard() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
-      <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
+    <main className="max-w-7xl mx-auto px-6 py-10">
+      {/* Header */}
+      <div
+        ref={headingRef}
+        className="flex items-end justify-between flex-wrap gap-4 mb-10"
+      >
         <div>
-          <h1 className="text-3xl font-extrabold">Tracked Sites</h1>
-          <p className="text-slate-400 mt-1">
+          <div className="badge-teal mb-3">
+            <span>⬡</span> AI Citation Tracker
+          </div>
+          <h1 className="font-display text-4xl font-extrabold leading-tight">
+            Tracked <span className="gradient-text">Sites</span>
+          </h1>
+          <p className="text-slate-400 mt-2 text-base">
             Monitor AI citations — and remember what fixes them.
           </p>
         </div>
+
         <div className="flex items-center gap-3">
           {health && (
-            <span className="text-xs text-slate-400 border border-edge rounded-full px-3 py-1">
-              memory: <span className="text-grape font-semibold">{health.memory}</span> · groq:{' '}
-              <span className={health.groq ? 'text-teal' : 'text-amber'}>{health.groq ? 'on' : 'simulated'}</span>
+            <span
+              className="text-xs text-slate-400 rounded-full px-3 py-1.5 flex items-center gap-2"
+              style={{
+                background: 'rgba(167,139,250,0.08)',
+                border: '1px solid rgba(167,139,250,0.2)',
+              }}
+            >
+              memory:{' '}
+              <span className="text-grape font-semibold">{health.memory}</span>
+              <span className="w-px h-3 bg-edge inline-block" />
+              groq:{' '}
+              <span className={health.groq ? 'text-teal' : 'text-amber'}>
+                {health.groq ? 'on' : 'simulated'}
+              </span>
             </span>
           )}
-          <Link to="/demo" className="btn-grape">▶ Run the Demo</Link>
-          <button className="btn-primary" onClick={() => setAdding((a) => !a)}>
+          <Link to="/demo" className="btn-grape" id="dash-run-demo">
+            ▶ Run the Demo
+          </Link>
+          <button
+            id="dash-add-site"
+            className="btn-primary"
+            onClick={() => setAdding((a) => !a)}
+          >
             + Add Site
           </button>
         </div>
       </div>
 
+      {/* Add site form */}
       {adding && (
         <motion.form
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
+          initial={{ opacity: 0, height: 0, y: -10 }}
+          animate={{ opacity: 1, height: 'auto', y: 0 }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
           onSubmit={submit}
-          className="card p-5 mb-6 grid sm:grid-cols-[1fr_1fr_auto] gap-3 items-end"
+          className="glass rounded-2xl p-5 mb-8 grid sm:grid-cols-[1fr_1fr_auto] gap-3 items-end"
+          style={{ boxShadow: 'var(--glow-teal)' }}
         >
           <div>
-            <label className="label">Site name</label>
+            <label className="label" htmlFor="form-site-name">Site name</label>
             <input
+              id="form-site-name"
               className="input"
-              placeholder="BuildByHet Agency"
+              placeholder="My Agency"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
           </div>
           <div>
-            <label className="label">Domain</label>
+            <label className="label" htmlFor="form-site-domain">Domain</label>
             <input
+              id="form-site-domain"
               className="input"
-              placeholder="buildbyhet.me"
+              placeholder="myagency.com"
               value={form.domain}
               onChange={(e) => setForm({ ...form, domain: e.target.value })}
             />
           </div>
-          <button className="btn-primary">Create & track</button>
+          <button id="form-site-submit" className="btn-primary">Create &amp; track</button>
         </motion.form>
       )}
 
+      {/* Sites grid */}
       {loading ? (
-        <div className="text-slate-500">Loading…</div>
+        <div className="text-slate-500 text-center py-16">
+          <div className="text-3xl mb-3 pulse-glow">⬡</div>
+          Loading your sites…
+        </div>
       ) : sites.length === 0 ? (
-        <div className="card p-10 text-center">
-          <div className="text-4xl mb-3">📡</div>
-          <h3 className="text-lg font-bold">No sites tracked yet</h3>
-          <p className="text-slate-400 mt-1 mb-5">
-            Add your first site, or jump straight into the memory demo.
+        <div
+          className="glass rounded-2xl p-12 text-center"
+          style={{ boxShadow: 'var(--glow-grape)' }}
+        >
+          <div className="text-5xl mb-4 float-anim">📡</div>
+          <h3 className="text-lg font-bold mb-2">No sites tracked yet</h3>
+          <p className="text-slate-400 mb-6 text-sm max-w-sm mx-auto">
+            Add your first site, or jump straight into the memory demo to see CiteMind in action.
           </p>
           <div className="flex items-center justify-center gap-3">
-            <button className="btn-primary" onClick={() => setAdding(true)}>+ Add Site</button>
-            <Link to="/demo" className="btn-grape">▶ Run the Demo</Link>
+            <button
+              id="empty-add-site"
+              className="btn-primary"
+              onClick={() => setAdding(true)}
+            >
+              + Add Site
+            </button>
+            <Link to="/demo" className="btn-grape" id="empty-run-demo">
+              ▶ Run the Demo
+            </Link>
           </div>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div
+          ref={gridRef}
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
           {sites.map((s) => (
-            <Link key={s.id} to={`/sites/${s.id}`} className="card p-5 hover:shadow-glow transition block">
+            <Link
+              key={s.id}
+              to={`/sites/${s.id}`}
+              className="card p-5 block group"
+              style={{ transition: 'box-shadow 0.25s ease, transform 0.25s ease' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--glow-teal)';
+                e.currentTarget.style.transform = 'translateY(-3px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '';
+                e.currentTarget.style.transform = '';
+              }}
+            >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
+                  <div className="badge-teal mb-2 w-fit">Site</div>
                   <h3 className="font-bold text-lg truncate">{s.name}</h3>
                   <p className="text-sm text-slate-400 truncate">{s.domain}</p>
                 </div>
                 <ShareOfModelGauge value={s.shareOfModel} size={86} label={false} />
               </div>
-              <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
+              <div className="mt-4 flex items-center justify-between text-xs text-slate-400 border-t border-edge pt-3">
                 <span>Share of Model</span>
-                <span className="text-slate-300">bank: {s.bankId}</span>
+                <span
+                  className="text-slate-300 font-mono text-[11px]"
+                  style={{ color: 'var(--color-grape)' }}
+                >
+                  bank: {s.bankId}
+                </span>
               </div>
             </Link>
           ))}
