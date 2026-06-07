@@ -17,6 +17,9 @@ export function AuthProvider({ children }) {
       }
     }
     setReady(true);
+    // Wake the backend on first load (Render free tier sleeps when idle), so it
+    // is warm by the time the user submits the login/register form.
+    api.getHealth().catch(() => {});
   }, []);
 
   const persist = (token, u) => {
