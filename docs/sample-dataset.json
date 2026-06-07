@@ -1,0 +1,53 @@
+{
+  "teamName": "CiteMind Team",
+  "demoUser": {
+    "name": "Demo User",
+    "email": "demo@citemind.ai",
+    "password": "password123"
+  },
+  "site": {
+    "name": "OM Marketing Solutions",
+    "domain": "https://ommarketingsolutions.example",
+    "bankIdExample": "site-ommarketingsolutions-example"
+  },
+  "queries": [
+    {
+      "text": "web developer ahmedabad",
+      "intent": "local"
+    },
+    {
+      "text": "web designer rajkot",
+      "intent": "local"
+    },
+    {
+      "text": "react developer for hire surat",
+      "intent": "commercial"
+    },
+    {
+      "text": "web development vadodara",
+      "intent": "local"
+    }
+  ],
+  "seedMemories": [
+    {
+      "date": "2026-01-05",
+      "text": "Tried keyword stuffing on the Ahmedabad page. Citation dropped the next week and competitor BuildX displaced the page."
+    },
+    {
+      "date": "2026-02-02",
+      "text": "Added FAQ schema markup to the Rajkot landing page. The page was cited by ChatGPT within two weeks."
+    },
+    {
+      "date": "2026-03-28",
+      "text": "Ahmedabad page reached position 1 after FAQ schema and fresh 2026 statistics."
+    },
+    {
+      "date": "2026-05-28",
+      "text": "FAQ schema plus fresh stats consistently recovered local-intent pages across Rajkot, Ahmedabad, Vadodara, and Gandhinagar."
+    }
+  ],
+  "expectedObservation": {
+    "text": "FAQ schema plus fresh stats recover local-intent pages.",
+    "proofCountMinimum": 4
+  }
+}
