@@ -18,18 +18,21 @@ import agentRoutes from './src/routes/agent.js';
 import demoRoutes from './src/routes/demo.js';
 
 const PORT = process.env.PORT || 5000;
+// CORS origin: set CLIENT_URL to your frontend URL to lock it down, or leave it
+// unset / "*" to allow any origin (handy for Vercel preview URLs during a demo).
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const CORS_ORIGIN = !process.env.CLIENT_URL || process.env.CLIENT_URL === '*' ? true : CLIENT_URL;
 
 async function start() {
   await connectDB();
   await initHindsight();
 
   const app = express();
-  app.use(cors({ origin: CLIENT_URL, credentials: true }));
+  app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
   app.use(express.json());
 
   const server = http.createServer(app);
-  const io = new Server(server, { cors: { origin: CLIENT_URL } });
+  const io = new Server(server, { cors: { origin: CORS_ORIGIN } });
   setIo(io);
 
   io.on('connection', (socket) => {

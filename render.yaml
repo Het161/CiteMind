@@ -1,0 +1,27 @@
+# Render Blueprint for the CiteMind backend (Express + Socket.io).
+# Render runs a persistent Node process, so WebSockets and the in-memory store
+# both work. Deploy: render.com → New → Blueprint → pick this repo.
+# Then add the secret env vars (GROQ_API_KEY, HINDSIGHT_API_KEY) in the dashboard.
+services:
+  - type: web
+    name: citemind-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: HINDSIGHT_BASE_URL
+        value: https://api.hindsight.vectorize.io
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: "*" # tighten to your Vercel URL after the frontend is live
+      # Set these as secrets in the Render dashboard (do NOT commit them):
+      - key: GROQ_API_KEY
+        sync: false
+      - key: HINDSIGHT_API_KEY
+        sync: false
+      # MONGODB_URI intentionally omitted → in-memory store (fine for the demo).
