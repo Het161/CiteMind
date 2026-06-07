@@ -1,136 +1,250 @@
-# 🧠 CiteMind — AI Citation Memory Agent
+# CiteMind
 
-> **Everyone has monitoring. We have memory.**
+CiteMind is an AI citation memory agent for teams that want to understand,
+recover, and improve how their websites are cited by AI answer engines.
 
-CiteMind is an AI agent for web agencies that tracks whether their content gets
-cited by AI engines (ChatGPT, Perplexity, Claude, Google AI Overviews) and —
-using a persistent memory layer ([Hindsight](https://ui.hindsight.vectorize.io)) —
-**learns over time which optimization strategies actually recover and grow
-citations** for a specific site.
+Instead of only monitoring whether a site is cited by tools such as ChatGPT,
+Perplexity, Claude, or Google AI Overviews, CiteMind remembers every citation
+check, failed experiment, optimization, recovery, and recommendation. Over time
+it turns that history into reusable beliefs for each tracked website.
 
-Built for **HackBaroda 2026** final round.
+Built for HackBaroda 2026.
 
-The core differentiator: every GEO tool *monitors* citations. None of them
-*remember why* a citation worked or failed. CiteMind retains every experiment,
-consolidates it into beliefs, and recommends the proven fix before you ask.
+## Documentation
 
----
+### Problem Statement Selected
 
-## Why memory is the star
+Modern web agencies and SEO teams are entering the Generative Engine
+Optimization era. Their clients now care about being cited in AI-generated
+answers, not only ranking on traditional search result pages.
 
-The closed loop of modern GEO is **monitor → diagnose → fix → verify → repeat**.
-CiteMind runs that loop *and remembers every turn of it* using Hindsight's three
-operations:
+The problem is that most monitoring tools answer only one question:
 
-| Operation | In CiteMind |
-|-----------|-------------|
-| `retain()` | Every citation check + every optimization + every outcome becomes a memory. |
-| **observation consolidation** | Hindsight auto-merges repeated facts into **beliefs** like *"FAQ schema recovers local pages — strengthening."* Surfaced as **ObservationCards**. |
-| `reflect()` | "What should I do?" → the agent reasons over all memory and answers with proof from past experiments. |
+> Is my site cited right now?
 
-One **memory bank per site** (`bank_id = site-{domain-slug}`) keeps each client's
-institutional knowledge separate.
+They do not remember:
 
----
+- why a citation dropped;
+- which competitor displaced the page;
+- which optimization recovered the citation;
+- how long recovery took;
+- whether the same fix worked for similar pages before.
 
-## The 90-second demo (Demo page)
+CiteMind solves the memory gap in AI citation optimization.
 
-A guided 3-step story that shows the agent going from generic to expert:
+### Solution Overview
 
-1. **Ask with empty memory** → generic answer (same as any AI). ❌
-2. **Seed 3 months of history** → ~15 memories stream into the live feed, then
-   Hindsight consolidates beliefs (*"FAQ schema recovers local pages, strengthening"*). 🧠
-3. **Ask the same question again** → specific, proof-backed answer rendered
-   side-by-side with step 1 in the **Before/After panel**. ✅
+CiteMind creates one memory bank per tracked site and runs a closed feedback
+loop:
 
-> *"Claude knows SEO. My agent knows MY SEO — and gets smarter every week."*
+1. A user registers and adds a website.
+2. The user adds target AI-answer queries.
+3. CiteMind checks citations across configured AI engines.
+4. Each check is stored as structured history and retained as memory.
+5. The agent consolidates repeated patterns into observations.
+6. The user asks the agent what to do next.
+7. The agent responds with recommendations backed by past site-specific proof.
 
----
+The demo flow shows the difference between an agent with empty memory and an
+agent that has retained three months of citation history.
 
-## Stack
+### Features Implemented
 
-- **Backend:** Node + Express (ESM), Socket.io, MongoDB (mongoose), Groq SDK, `@vectorize-io/hindsight-client`
-- **Frontend:** Vite + React 18, Tailwind, framer-motion, react-circular-progressbar, socket.io-client
-- **LLM:** Groq (`openai/gpt-oss-120b` by default)
-- **Memory:** Hindsight (cloud or local)
+- JWT-based user registration and login.
+- Tracked site creation with a derived memory bank id.
+- Query management for local, commercial, and informational intents.
+- Citation monitoring across Perplexity, ChatGPT, Claude, and AI Overview
+  labels.
+- Share-of-model score calculation for tracked sites.
+- Citation decay classification: statistical, structural, and competitive.
+- Site-specific memory retention using Hindsight when credentials are present.
+- Built-in fallback memory engine when Hindsight is unavailable.
+- Groq-powered answer generation when a Groq key is present.
+- Deterministic simulated mode when external API keys are absent.
+- Consolidated observation cards that surface learned citation patterns.
+- Agent Q&A that uses retained memory to produce proof-backed
+  recommendations.
+- WebSocket events for live monitoring, retained memory, observations, demo
+  reset, and demo seed progress.
+- Guided demo page with before/after agent comparison.
 
-### Graceful degradation (so the demo *always* works)
-- **No MongoDB?** → falls back to an in-memory store automatically.
-- **No Hindsight creds?** → a built-in Groq-backed memory engine provides
-  retain / recall / reflect / observations.
-- **No Groq key?** → citation checks are simulated and reflect/observations use a
-  deterministic heuristic. The full before/after demo still runs.
+### Technology Stack Used
 
-Check `GET /api/health` to see active modes: `{ memory: "hindsight"|"fallback", groq: bool }`.
+| Layer | Technology |
+| --- | --- |
+| Frontend | Vite, React 18, React Router, Tailwind CSS |
+| UI/Animation | Framer Motion, GSAP, Three.js, react-circular-progressbar |
+| Backend | Node.js, Express, Socket.io |
+| Database | MongoDB with Mongoose, with in-memory fallback |
+| Auth | JSON Web Tokens, bcryptjs |
+| AI Model | Groq SDK, default model `openai/gpt-oss-120b` |
+| Memory | Hindsight client, with local fallback engine |
+| Deployment | Render backend blueprint, Vercel-ready frontend config |
 
----
+### Setup Instructions
 
-## Setup
+Prerequisites:
 
-### Backend
+- Node.js 18 or newer
+- npm
+- Optional: MongoDB connection string
+- Optional: Groq API key
+- Optional: Hindsight API key
+
+Install and run the backend:
+
 ```bash
 cd backend
 npm install
-cp .env.example .env     # fill GROQ_API_KEY and (optionally) Hindsight creds
-npm run dev              # http://localhost:5000
+npm run dev
 ```
 
-### Frontend
+The backend starts on `http://localhost:5000`.
+
+Install and run the frontend:
+
 ```bash
 cd frontend
 npm install
-npm run dev             # http://localhost:5173
+npm run dev
 ```
 
-### Keys
-- **Groq:** free key at https://console.groq.com → `GROQ_API_KEY`
-- **Hindsight:** sign up at https://ui.hindsight.vectorize.io (promo `MEMHACK6`
-  for $50 credits) → set `HINDSIGHT_BASE_URL` (+ `HINDSIGHT_API_KEY`).
-  Or run locally (`pip install hindsight-api`) and point at `http://localhost:8888`.
+The frontend starts on `http://localhost:5173`.
 
-> Both keys are **optional** — see *Graceful degradation* above.
+Optional backend environment variables:
 
----
-
-## API
-
-| Method | Route | Purpose |
-|--------|-------|---------|
-| POST | `/api/auth/register`, `/api/auth/login` | JWT auth |
-| POST/GET | `/api/sites` | create / list tracked sites (auto-creates Hindsight bank id) |
-| GET | `/api/sites/:id` | site detail + queries + recent checks |
-| POST | `/api/sites/:id/queries` | add target queries |
-| POST | `/api/monitor/:siteId/run` | run citation checks across all queries (retains each to memory) |
-| GET | `/api/agent/:siteId/observations` | consolidated beliefs (proof memory works) |
-| POST | `/api/agent/:siteId/ask` | reflect() → recommendation + proof count |
-| POST | `/api/demo/:siteId/seed` | seed 3 months of history into store + memory |
-| POST | `/api/demo/:siteId/reset` | clear bank + checks for a fresh demo |
-
-### WebSocket events (per site room)
-`citation_checked` · `memory_retained` · `observation_formed` · `monitor_complete` · `seed_complete` · `demo_reset`
-
----
-
-## Project structure
-
-```
-citemind/
-├── backend/   # Express API, services (the "brain"), Hindsight + Groq wrappers
-└── frontend/  # React dashboard + the winning Demo page
+```bash
+PORT=5000
+CLIENT_URL=http://localhost:5173
+JWT_SECRET=replace-with-a-secret
+MONGODB_URI=mongodb://localhost:27017/citemind
+GROQ_API_KEY=your-groq-key
+GROQ_MODEL=openai/gpt-oss-120b
+HINDSIGHT_BASE_URL=https://api.hindsight.vectorize.io
+HINDSIGHT_API_KEY=your-hindsight-key
 ```
 
-Key files:
-- `backend/src/services/hindsightService.js` — retain / recall / reflect / observations (the heart)
-- `backend/src/services/citationChecker.js` — runs checks, classifies decay, retains outcomes
-- `frontend/src/pages/Demo.jsx` — the 3-step before/after story
-- `frontend/src/components/BeforeAfterPanel.jsx` — the single most important visual
+The app still runs without MongoDB, Groq, or Hindsight. In that case it uses an
+in-memory data store, simulated citation checks, and a fallback memory engine so
+the demo remains usable.
 
----
+Health check:
 
-## One-line pitch
+```bash
+curl http://localhost:5000/api/health
+```
 
-> Every GEO tool tells you your AI citations dropped. CiteMind remembers **why**
-> they dropped last time, **what** fixed it, and gives you the proven playbook —
-> because it learns from every experiment you've ever run.
+Expected response shape:
 
-Built for HackBaroda 2026 — Community/Company Edition.
+```json
+{
+  "ok": true,
+  "memory": "fallback",
+  "groq": false
+}
+```
+
+## Media Assets
+
+Existing visual assets:
+
+- `frontend/public/architecture-system.png` - system architecture visual.
+- `frontend/public/dataflow.png` - application data flow visual.
+- `frontend/public/favicon.png` and `frontend/public/favicon.svg` - app icons.
+
+Generated presentation assets:
+
+- `media/presentation/citemind_pitch.mp4` - generated 90-second video.
+- `media/presentation/narration.wav` - generated narration or fallback audio.
+- `media/presentation/slide_*.png` - generated presentation slides.
+- `media/presentation/storyboard.html` - browser-friendly pitch storyboard.
+
+Generate the pitch video:
+
+```bash
+python scripts/generate_presentation.py
+```
+
+The script uses MoviePy and Pillow, which are already available in the current
+workspace. It attempts Windows text-to-speech narration first and falls back to
+a generated audio track if speech synthesis is unavailable.
+
+## Additional Files
+
+- Database schema: `docs/database-schema.md`
+- API documentation: `docs/api.md`
+- Sample dataset: `docs/sample-dataset.json`
+- Presentation generator: `scripts/generate_presentation.py`
+
+## Demonstration Video Structure
+
+Recommended duration: 1.5 minutes.
+
+### Introduction
+
+- Team name: CiteMind Team
+- Problem statement: AI citation monitoring tools lack memory of what worked,
+  why citations changed, and how to recover them.
+
+### Solution Overview
+
+- Architecture: React frontend, Express API, Socket.io live updates, MongoDB or
+  in-memory storage, Groq model integration, and Hindsight/fallback memory.
+- Main idea: every citation check and optimization outcome becomes memory for a
+  site-specific agent.
+
+### Live Demonstration
+
+- Register or log in.
+- Add a client website.
+- Add AI-answer queries.
+- Run citation monitoring.
+- Seed the demo history.
+- Compare empty-memory advice with memory-backed recommendations.
+- View observation cards that prove the agent learned from repeated outcomes.
+
+### Conclusion
+
+Future enhancements:
+
+- Add real integrations for more AI answer engines.
+- Add scheduled monitoring jobs.
+- Add exportable client reports.
+- Add agency-level dashboards across many client sites.
+- Add stronger analytics for citation recovery time and competitor movement.
+
+Impact and scalability:
+
+CiteMind can scale from a single client website to an agency portfolio because
+each site has its own memory bank. The more checks and experiments a team runs,
+the more useful the recommendations become.
+
+## Project Structure
+
+```text
+CiteMind/
+├── backend/
+│   ├── server.js
+│   └── src/
+│       ├── models/
+│       ├── routes/
+│       ├── services/
+│       └── store/
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── hooks/
+│       ├── pages/
+│       └── services/
+├── docs/
+├── media/
+├── scripts/
+└── render.yaml
+```
+
+## One-Line Pitch
+
+CiteMind does not just tell you that your AI citations changed; it remembers
+what caused the change, what fixed it, and what your team should do next.
